@@ -1,7 +1,7 @@
 import numpy as np
 
-from .utils.data_manipulations import divide_on_feature
-from .utils.functions import calculate_entropy, calculate_variance
+from utils.data_manipulations import divide_on_feature
+from utils.functions import calculate_entropy, calculate_variance
 
 
 class Node():
