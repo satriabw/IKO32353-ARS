@@ -1,7 +1,8 @@
 import numpy as np
 
-from .utils.data_manipulations import divide_on_feature, train_test_split, standardize
-from .utils.functions import calculate_entropy, accuracy_score, calculate_variance, mean_squared_error
+from .utils.data_manipulations import divide_on_feature
+from .utils.functions import calculate_entropy, calculate_variance
+
 
 class Node():
 
