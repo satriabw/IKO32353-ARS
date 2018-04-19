@@ -1,4 +1,5 @@
 import time
+
 start_time = time.time()
 import numpy as np
 from decision_tree import ClassificationTree
@@ -6,12 +7,13 @@ from utils.functions import mean_squared_error, accuracy_score
 from utils.data_manipulations import standardize, k_fold_cross_validation_sets
 import csv
 import pickle
-X = np.array([0,0,0,0,0,0,0])
+
+X = np.array([0, 0, 0, 0, 0, 0, 0])
 y = np.array([0])
 
 with open('movie_metadata.csv') as f:
-    reader = csv.DictReader(f) # read rows into a dictionary format
-    for row in reader: # read a row as {column1: value1, column2: value2,...}
+    reader = csv.DictReader(f)  # read rows into a dictionary format
+    for row in reader:  # read a row as {column1: value1, column2: value2,...}
         try:
             column = np.array([])
             column = np.hstack((column, float(row['duration'])))
@@ -24,7 +26,7 @@ with open('movie_metadata.csv') as f:
             target = float(row['imdb_score'])
             target = int(target)
             if target >= 4 and target <= 8:
-                y = np.vstack((y, [target]))#scores
+                y = np.vstack((y, [target]))  # scores
                 X = np.vstack((X, column))
             # dataset.append(Instance( [ncfr, dur, dfl, a3fl, a1fl, gr], [target] ))
         except Exception as e:
