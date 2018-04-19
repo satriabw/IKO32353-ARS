@@ -3,6 +3,7 @@ import numpy as np
 from .utils.data_manipulations import divide_on_feature, train_test_split, standardize
 from .utils.functions import calculate_entropy, accuracy_score, calculate_variance, mean_squared_error
 
+
 class Node():
 
     def __init__(self, feature_index=None, threshold=None, value=None, true_branch=None, false_branch=None):
@@ -12,8 +13,9 @@ class Node():
         self.true_branch = true_branch
         self.false_branch = false_branch
 
+
 class DecisionTree(object):
-    
+
     def __init__(self, min_samples_split=2, min_impurity=1e-5, max_depth=3, loss=None):
         self.root = None
         self.min_samples_split = min_samples_split
@@ -23,12 +25,12 @@ class DecisionTree(object):
         self._leaf_value_calculation = None
         self.one_dim = None
         self.loss = loss
-    
+
     def fit(self, X, y, loss=None):
         self.one_dim = len(np.shape(y)) == 1
         self.root = self._build_tree(X, y)
         self.loss = None
-    
+
     def _build_tree(self, X, y, current_depth=0):
         largest_impurity = 0
         best_criteria = None
@@ -36,13 +38,13 @@ class DecisionTree(object):
 
         if len(np.shape(y)) == 1:
             y = np.expand_dims(y, axis=1)
-        
+
         Xy = np.concatenate((X, y), axis=1)
 
         n_samples, n_features = np.shape(X)
 
         if n_samples >= self.min_samples_split and current_depth <= self.max_depth:
-            
+
             for feature_index in range(n_features):
                 feature_values = np.expand_dims(X[:, feature_index], axis=1)
                 unique_value = np.unique(feature_values)
@@ -65,25 +67,25 @@ class DecisionTree(object):
                                 "rightX": Xy2[:, :n_features],
                                 "righty": Xy2[:, n_features:]
                             }
-        
+
         if largest_impurity > self.min_impurity:
             true_branch = self._build_tree(best_sets["leftX"], best_sets["lefty"], current_depth + 1)
             false_branch = self._build_tree(best_sets["rightX"], best_sets["righty"], current_depth + 1)
             return Node(feature_index=best_criteria["feature_index"], threshold=best_criteria[
                 "threshold"], true_branch=true_branch, false_branch=false_branch)
-        
+
         leaf_value = self._leaf_value_calculation(y)
 
         return Node(value=leaf_value)
 
     def predict_value(self, x, tree=None):
-        
+
         if tree is None:
             tree = self.root
-        
+
         if tree.value is not None:
             return tree.value
-        
+
         feature_value = x[tree.feature_index]
 
         branch = tree.false_branch
@@ -92,15 +94,15 @@ class DecisionTree(object):
                 branch = tree.true_branch
         elif feature_value == tree.threshold:
             branch = tree.true_branch
-        
+
         return self.predict_value(x, branch)
-    
+
     def predict(self, X):
         y_pred = []
         for x in X:
             y_pred.append(self.predict_value(x))
         return y_pred
-    
+
     def print_tree(self, tree=None, indent=" "):
         """ Recursively print the decision tree """
         if not tree:
@@ -108,17 +110,18 @@ class DecisionTree(object):
 
         # If we're at leaf => print the label
         if tree.value is not None:
-            print (tree.value)
+            print(tree.value)
         # Go deeper down the tree
         else:
             # Print test
-            print ("%s:%s? " % (tree.feature_index, tree.threshold))
+            print("%s:%s? " % (tree.feature_index, tree.threshold))
             # Print the true scenario
-            print ("%sT->" % (indent))
+            print("%sT->" % (indent))
             self.print_tree(tree.true_branch, indent + indent)
             # Print the false scenario
-            print ("%sF->" % (indent))
+            print("%sF->" % (indent))
             self.print_tree(tree.false_branch, indent + indent)
+
 
 class RegressionTree(DecisionTree):
     def _calculate_variance_reduction(self, y, y1, y2):
@@ -131,26 +134,27 @@ class RegressionTree(DecisionTree):
         variance_reduction = var_total - (frac_1 * var_1 + frac_2 * var_2)
 
         return sum(variance_reduction)
-    
+
     def _mean_of_y(self, y):
         value = np.mean(y, axis=0)
         return value if len(value) > 1 else value[0]
-    
+
     def fit(self, X, y):
         self._impurity_calculation = self._calculate_variance_reduction
         self._leaf_value_calculation = self._mean_of_y
         super(RegressionTree, self).fit(X, y)
+
 
 class ClassificationTree(DecisionTree):
     def _calculate_information_gain(self, y, y1, y2):
         p = len(y1) / len(y)
         entropy = calculate_entropy(y)
         info_gain = entropy - p * \
-            calculate_entropy(y1) - (1 - p) * \
-            calculate_entropy(y2)
+                    calculate_entropy(y1) - (1 - p) * \
+                    calculate_entropy(y2)
 
         return info_gain
-    
+
     def _majority_vote(self, y):
         most_common = None
         max_count = 0
