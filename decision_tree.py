@@ -1,12 +1,13 @@
 import numpy as np
 
-from .utils.data_manipulations import divide_on_feature, train_test_split, standardize
-from .utils.functions import calculate_entropy, accuracy_score, calculate_variance, mean_squared_error
+from .utils.data_manipulations import divide_on_feature
+from .utils.functions import calculate_entropy, calculate_variance
 
 
 class Node():
 
-    def __init__(self, feature_index=None, threshold=None, value=None, true_branch=None, false_branch=None):
+    def __init__(self, feature_index=None, threshold=None, value=None,
+                 true_branch=None, false_branch=None):
         self.feature_index = feature_index
         self.threshold = threshold
         self.value = value
@@ -16,7 +17,8 @@ class Node():
 
 class DecisionTree(object):
 
-    def __init__(self, min_samples_split=2, min_impurity=1e-5, max_depth=3, loss=None):
+    def __init__(self, min_samples_split=2, min_impurity=1e-5, max_depth=3,
+                 loss=None):
         self.root = None
         self.min_samples_split = min_samples_split
         self.min_impurity = min_impurity
@@ -60,7 +62,8 @@ class DecisionTree(object):
 
                         if impurity > largest_impurity:
                             largest_impurity = impurity
-                            best_criteria = {"feature_index": feature_index, "threshold": threshold}
+                            best_criteria = {"feature_index": feature_index,
+                                             "threshold": threshold}
                             best_sets = {
                                 "leftX": Xy1[:, :n_features],
                                 "lefty": Xy1[:, n_features:],
@@ -69,10 +72,16 @@ class DecisionTree(object):
                             }
 
         if largest_impurity > self.min_impurity:
-            true_branch = self._build_tree(best_sets["leftX"], best_sets["lefty"], current_depth + 1)
-            false_branch = self._build_tree(best_sets["rightX"], best_sets["righty"], current_depth + 1)
-            return Node(feature_index=best_criteria["feature_index"], threshold=best_criteria[
-                "threshold"], true_branch=true_branch, false_branch=false_branch)
+            true_branch = self._build_tree(best_sets["leftX"],
+                                           best_sets["lefty"],
+                                           current_depth + 1)
+            false_branch = self._build_tree(best_sets["rightX"],
+                                            best_sets["righty"],
+                                            current_depth + 1)
+            return Node(feature_index=best_criteria["feature_index"],
+                        threshold=best_criteria[
+                            "threshold"], true_branch=true_branch,
+                        false_branch=false_branch)
 
         leaf_value = self._leaf_value_calculation(y)
 
@@ -102,25 +111,6 @@ class DecisionTree(object):
         for x in X:
             y_pred.append(self.predict_value(x))
         return y_pred
-
-    def print_tree(self, tree=None, indent=" "):
-        """ Recursively print the decision tree """
-        if not tree:
-            tree = self.root
-
-        # If we're at leaf => print the label
-        if tree.value is not None:
-            print(tree.value)
-        # Go deeper down the tree
-        else:
-            # Print test
-            print("%s:%s? " % (tree.feature_index, tree.threshold))
-            # Print the true scenario
-            print("%sT->" % (indent))
-            self.print_tree(tree.true_branch, indent + indent)
-            # Print the false scenario
-            print("%sF->" % (indent))
-            self.print_tree(tree.false_branch, indent + indent)
 
 
 class RegressionTree(DecisionTree):
