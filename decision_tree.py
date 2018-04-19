@@ -112,25 +112,6 @@ class DecisionTree(object):
             y_pred.append(self.predict_value(x))
         return y_pred
 
-    def print_tree(self, tree=None, indent=" "):
-        """ Recursively print the decision tree """
-        if not tree:
-            tree = self.root
-
-        # If we're at leaf => print the label
-        if tree.value is not None:
-            print (tree.value)
-        # Go deeper down the tree
-        else:
-            # Print test
-            print ("%s:%s? " % (tree.feature_index, tree.threshold))
-            # Print the true scenario
-            print ("%sT->" % (indent))
-            self.print_tree(tree.true_branch, indent + indent)
-            # Print the false scenario
-            print ("%sF->" % (indent))
-            self.print_tree(tree.false_branch, indent + indent)
-
 
 class RegressionTree(DecisionTree):
     def _calculate_variance_reduction(self, y, y1, y2):
