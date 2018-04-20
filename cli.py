@@ -527,7 +527,7 @@ if __name__ == '__main__':
     # Create a stylesheet.
     style = style_from_dict({
         Token.Hello: '#ff0066',
-        Token.World: '#44ff44 italic',
+        Token.World: '#44ff44 bold',
     })
 
     # Make a list of (Token, text) tuples.
@@ -553,8 +553,8 @@ if __name__ == '__main__':
                    str(query['Outlet_Establishment_Year']),
                    ]
     tokens_done = [
-        (Token.Hello, '\nHasil '),
-        (Token.World, "Prediksi: "),
+        (Token.Hello, '\nHasil Prediksi '),
+        (Token.World, "Item Outlet Sales: "),
         (Token, '\n'),
     ]
     print_tokens(tokens_done, style=style)
