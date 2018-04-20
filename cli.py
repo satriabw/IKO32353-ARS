@@ -10,6 +10,42 @@
 # Outlet_Location_Type
 # Outlet_Type
 
+import subprocess
+from prompt_toolkit import prompt
+from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit.styles import style_from_dict
+from prompt_toolkit.token import Token
+from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.shortcuts import print_tokens
+
+features = ['Item_Identifier',
+            'Item_Weight',
+            'Item_Fat_Content',
+            'Item_Visibility',
+            'Item_Type',
+            'Item_MRP',
+            'Outlet_Identifier',
+            'Outlet_Establishment_Year',
+            'Outlet_Size',
+            'Outlet_Location_Type',
+            'Outlet_Type',
+            'Item_Outlet_Sales'
+            ]
+
+dtypes = {
+    "Item_Identifier": "string",
+    "Item_Weight": "float",
+    "Item_Fat_Content": "string",
+    "Item_Visibility": "float",
+    "Item_Type": "string",
+    "Item_MRP": "float",
+    "Outlet_Identifier": "string",
+    "Outlet_Establishment_Year": "int",
+    "Outlet_Size": "string",
+    "Outlet_Location_Type": "string",
+    "Outlet_Type": "string",
+    "Item_Outlet_Sales": "float",
+}
 
 category = dict()
 
@@ -365,21 +401,170 @@ category["Item_Outlet_Sales"] = {}
 category["Item_Outlet_Sales"]["max"] = 13086.9648
 category["Item_Outlet_Sales"]["min"] = 33.29
 
-features = list(category.keys())
+query = {}
 
 
-def prompt_categorical(content):
-    for item in content:
-        print(item)
+class StringValidator(Validator):
+    def validate(self, document):
+        text = document.text
+
+        if not text:
+            raise ValidationError(
+                message='Please fill the value. Press TAB for completion',
+                cursor_position=len(text))
 
 
-def prompt_number(content):
-    print(type(content))
+class NumberValidator(Validator):
+    def validate(self, document):
+        text = document.text
+
+        if text and not text.isdigit():
+            i = 0
+
+            # Get index of fist non numeric character.
+            # We want to move the cursor here.
+            for i, c in enumerate(text):
+                if not c.isdigit():
+                    break
+
+            raise ValidationError(
+                message='This input contains non-numeric characters',
+                cursor_position=i)
 
 
-for feature in features[2:]:
-    isi = category[feature]
-    if isinstance(isi, list):
-        prompt_categorical(isi)
-    else:
-        prompt_number(isi)
+class FloatValidator(Validator):
+    def validate(self, document):
+        text = document.text
+        try:
+            float(text)
+            validity = True
+        except ValueError:
+            validity = False
+
+        if not validity:
+            i = 0
+
+            for i, c in enumerate(text):
+                has_one_dot = False
+                if c == '.' and not has_one_dot:
+                    has_one_dot = True
+                elif not c.isdigit():
+                    break
+
+            raise ValidationError(
+                message='This input contains non-numeric characters',
+                cursor_position=i)
+
+
+prompt_style = style_from_dict({
+    Token.Toolbar: '#ffffff bg:#333333',
+    Token.Feature: '#FFFFFF',
+    Token.DType: '#D95040',
+    Token.Colon: '#FFFFFF',
+    Token.Default: '#828282',
+})
+
+
+def prompt_number(content, feature):
+    dtype = dtypes[feature]
+    ft = feature.replace("_", " ")
+
+    validators = {
+        'string': StringValidator,
+        'float': FloatValidator,
+        'int': NumberValidator,
+    }
+    parser = {
+        'string': str,
+        'float': float,
+        'int': int,
+    }
+
+    dict_completer = None
+    if dtype == 'string':
+        dict_completer = WordCompleter(content)
+
+    selected_validator = validators[dtype]
+    selected_parser = parser[dtype]
+    default_value = None
+    if dtype == 'string':
+        default_value = content[0]
+    elif dtype == 'int' or dtype == 'float':
+        default_value = (content["max"] - content["min"] / 2) + content["min"]
+        default_value = str(int(default_value))
+
+    def get_bottom_toolbar_tokens(cli):
+        selected_toolbar_text = "Whoa?! Please restart"
+        if dtype == 'string':
+            selected_toolbar_text = 'Press TAB for completion.'
+        elif dtype == 'int' or dtype == 'float':
+            selected_toolbar_text = 'Our data said that maximum is {} and minimum is {}'.format(
+                content["max"], content["min"])
+
+        return [(Token.Toolbar,
+                 selected_toolbar_text)]
+
+    def get_prompt_tokens(cli):
+        return [
+            (Token.Feature, "{} ".format(ft)),
+            (Token.DType, "| {}".format(dtype)),
+            (Token.Colon, ': '),
+            (Token.Default, "({}) ".format(default_value)),
+        ]
+
+    query[feature] = selected_parser(
+        prompt(
+            get_prompt_tokens=get_prompt_tokens,
+            validator=selected_validator(),
+            default=default_value,
+            get_bottom_toolbar_tokens=get_bottom_toolbar_tokens,
+            completer=dict_completer,
+            mouse_support=True,
+            style=prompt_style))
+
+
+if __name__ == '__main__':
+    # Create a stylesheet.
+    style = style_from_dict({
+        Token.Hello: '#ff0066',
+        Token.World: '#44ff44 italic',
+    })
+
+    # Make a list of (Token, text) tuples.
+    tokens = [
+        (Token.Hello, 'Prediksi Keuntungan Toko '),
+        (Token.World, 'BigMart'),
+        (Token, '\n'),
+    ]
+
+    # Print the result.
+    print("")
+    print_tokens(tokens, style=style)
+    print("\n")
+
+    for feature in features[0:-1]:
+        isi = category[feature]
+        prompt_number(isi, feature)
+
+    input_query = ["python", "runner_cart.py",
+                   str(query['Item_Weight']),
+                   str(query['Item_Visibility']),
+                   str(query['Item_MRP']),
+                   str(query['Outlet_Establishment_Year']),
+                   ]
+    tokens_done = [
+        (Token.Hello, '\nHasil '),
+        (Token.World, "Prediksi: "),
+        (Token, '\n'),
+    ]
+    print_tokens(tokens_done, style=style)
+
+
+    try:
+        subprocess.call(input_query)
+        raise SystemExit()
+
+    except KeyboardInterrupt:
+        print("Quite")
+
+
