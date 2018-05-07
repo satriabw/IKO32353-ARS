@@ -119,7 +119,7 @@ class RegressionTree(DecisionTree):
         var_1 = calculate_variance(y1)
         var_2 = calculate_variance(y2)
         frac_1 = len(y1) / len(y)
-        frac_2 = len(y1) / len(y)
+        frac_2 = len(y2) / len(y)
 
         variance_reduction = var_total - (frac_1 * var_1 + frac_2 * var_2)
 
