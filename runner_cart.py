@@ -37,6 +37,7 @@ class DatasetTransformer():
         return dataset, maps
 
 
+
 # Get data from train dataset
 # my_data = np.genfromtxt('Train_Dataset_Mini.csv', delimiter=',', skip_header=1)
 my_data = pd.read_csv('Train_Dataset_Mini.csv')
@@ -45,14 +46,16 @@ features = ['Item_Identifier', 'Item_Fat_Content', 'Item_Type', 'Outlet_Identifi
 transformer = DatasetTransformer(my_data, features)
 transformer.transform_to_csv()
 
+my_data, maps = transformer.transform()
 
 
-# X, y = my_data[:, :-1], my_data[:, -1]
 
-# models = RegressionTree()
-# models.fit(X, y)
-# # Test predict for some input
-# args = sys.argv[1:]
+X, y = my_data[:, :-1], my_data[:, -1]
+
+models = RegressionTree()
+models.fit(X, y)
+# Test predict for some input
+args = sys.argv[1:]
 # if len(args) < 4:
 #     args = [11.65, 0.040081193, 227.0694, 2009]
 
