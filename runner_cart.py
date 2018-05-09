@@ -51,7 +51,7 @@ class DatasetTransformer():
 # my_data = my_data.values
 # X, y = my_data[:, :-1], my_data[:, -1]
 
-my_data = np.genfromtxt('Train_Dataset_Mini.csv', delimiter=',',
+my_data = np.genfromtxt('Train_Datasets.csv', delimiter=',',
                         skip_header=1, dtype=None, encoding=None)
 
 X = np.zeros(shape=(1, 11))
@@ -65,19 +65,21 @@ for data in my_data:
 
 # X, y = my_data[:, :-1], my_data[:, -1]
 
-print(X)
-print(y)
+# print(X)
+# print(y)
 models = RegressionTree()
 X = X[:-1]
 y = y[:-1]
 models.fit(X, y)
+
 # Test predict for some input
 # args = sys.argv[1:]
 # # if len(args) < 4:
 #     args = [11.65, 0.040081193, 227.0694, 2009]
+
 args = sys.argv[1:]
 if len(args) < 4:
     args = ['FDV11',9.1,'Regular',0,'Breads',173.2054,'OUT045',2002,'Medium','Tier 2','Supermarket Type1']
 
-# print(models.predict(np.array([args])),
-#       1141.847)
+print(models.predict(np.array([args])),
+      1141.847)
