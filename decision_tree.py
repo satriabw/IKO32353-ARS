@@ -52,7 +52,7 @@ class DecisionTree(object):
                 unique_value = np.unique(feature_values)
 
                 for threshold in unique_value:
-                    Xy1, Xy2 = divide_on_feature(Xy, feature_index, threshold)
+                    Xy1, Xy2 = divide_on_feature(Xy, feature_index, threshold)                  
 
                     if len(Xy1) > 0 and len(Xy2) > 0:
                         y1 = Xy1[:, n_features:]
@@ -94,7 +94,7 @@ class DecisionTree(object):
 
         if tree.value is not None:
             return tree.value
-
+        
         feature_value = x[tree.feature_index]
 
         branch = tree.false_branch
@@ -126,6 +126,8 @@ class RegressionTree(DecisionTree):
         return sum(variance_reduction)
 
     def _mean_of_y(self, y):
+        if y.dtype != float:
+            y = y.astype(np.float)
         value = np.mean(y, axis=0)
         return value if len(value) > 1 else value[0]
 

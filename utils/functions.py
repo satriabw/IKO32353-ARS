@@ -22,6 +22,9 @@ def mean_squared_error(y_true, y_pred):
 
 
 def calculate_variance(X):
+    if X.dtype != float:
+        X = X.astype(np.float)
+
     mean = np.ones(np.shape(X)) * X.mean(0)
     n_samples = np.shape(X)[0]
     variance = (1 / n_samples) * np.diag((X - mean).T.dot(X - mean))
