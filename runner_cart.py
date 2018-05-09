@@ -1,5 +1,5 @@
 import sys
-
+import pickle
 import numpy as np
 import pandas as pd
 
@@ -72,6 +72,11 @@ X = X[:-1]
 y = y[:-1]
 models.fit(X, y)
 
+filename = 'finalized_model.sav'
+pickle.dump(models, open(filename, 'wb'))
+
+loaded_model = pickle.load(open(filename, 'rb'))
+
 # Test predict for some input
 # args = sys.argv[1:]
 # # if len(args) < 4:
@@ -81,5 +86,5 @@ args = sys.argv[1:]
 if len(args) < 4:
     args = ['FDV11',9.1,'Regular',0,'Breads',173.2054,'OUT045',2002,'Medium','Tier 2','Supermarket Type1']
 
-print(models.predict(np.array([args])),
+print(loaded_model.predict(np.array([args])),
       1141.847)
